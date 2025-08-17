@@ -4,21 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Serenote | Login & Register</title>
+  <!-- Icon Library -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link rel="stylesheet" href="css/logsign.css">
 </head>
 <body>
-
+  <a href="/" class="back-home-btn"><i class='bx bx-home-alt'></i> Back to Home</a>
   <div class="wrapper">
-    <div class="form-box login">
+    <div class="form-box login active">
       <h2>Login</h2>
       <form id="loginForm">
+        <div class="form-message"></div>
         <div class="input-box">
-          <input type="text"  id="loginUser" required>
+          <i class='bx bxs-user'></i>
+          <input type="text" id="loginUser" required>
           <label>Username</label>
         </div>
         <div class="input-box">
-          <input type="password"  id="loginPass" required>
+          <i class='bx bxs-lock-alt' ></i>
+          <input type="password" id="loginPass" required>
           <label>Password</label>
+          <i class='bx bxs-hide' id="toggleLoginPass"></i>
         </div>
         <button type="submit" class="btn">Login</button>
         <div class="link">
@@ -30,17 +36,23 @@
     <div class="form-box register">
       <h2>Register</h2>
       <form id="registerForm">
+        <div class="form-message"></div>
         <div class="input-box">
+          <i class='bx bxs-user'></i>
           <input type="text" id="regUser" required>
           <label>Username</label>
         </div>
         <div class="input-box">
+          <i class='bx bxs-lock-alt' ></i>
           <input type="password" id="regPass" required>
           <label>Password</label>
+          <i class='bx bxs-hide' id="toggleRegPass"></i>
         </div>
         <div class="input-box">
-          <input type="password"  id="regPass2" required>
+          <i class='bx bxs-lock-alt' ></i>
+          <input type="password" id="regPass2" required>
           <label>Repeat Password</label>
+          <i class='bx bxs-hide' id="toggleRegPass2"></i>
         </div>
         <button type="submit" class="btn">Register</button>
         <div class="link">
@@ -53,4 +65,3 @@
   <script src="js/logsi.js"></script>
 </body>
 </html>
-
