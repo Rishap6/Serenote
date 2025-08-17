@@ -1,0 +1,125 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ed2553, #ff6f61);
+}
+
+.wrapper {
+  position: relative;
+  width: 380px;
+  height: 450px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+/* Form Box */
+.form-box {
+  position: absolute;
+  width: 100%;
+  padding: 40px;
+  transition: 0.5s;
+}
+
+.form-box h2 {
+  font-size: 28px;
+  color: #ed2553;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Input Fields */
+.input-box {
+  position: relative;
+  margin: 25px 0;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  font-size: 16px;
+  outline: none;
+  background: transparent;
+}
+
+.input-box label {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #999;
+  pointer-events: none;
+  transition: 0.3s ease;
+}
+
+.input-box input:focus ~ label,
+.input-box input:valid ~ label {
+  top: -5px;
+  font-size: 12px;
+  color: #ed2553;
+}
+
+/* Button */
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #ed2553;
+  border: none;
+  border-radius: 25px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #c9143e;
+}
+
+/* Links */
+.link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.link a {
+  color: #ed2553;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link a:hover {
+  text-decoration: underline;
+}
+
+/* Switching Forms */
+.register {
+  left: 100%;
+}
+
+.wrapper.active {
+  height: 520px;
+}
+
+.wrapper.active .login {
+  left: -100%;
+}
+
+.wrapper.active .register {
+  left: 0;
+}
