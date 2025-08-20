@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Serenote – Dashboard</title>
+  <style>
+    :root{
+      --bg:#faf7f2;
+      --paper:#ffffff;
+      --ink:#1f2937; /* slate-800 */
+      --muted:#6b7280; /* slate-500 */
+      --brand:#7c3aed; /* violet-600 */
+      --brand-2:#a78bfa; /* violet-300 */
+      --accent:#10b981; /* emerald-500 */
+      --border:#e5e7eb; /* gray-200 */
+      --shadow:0 10px 30px rgba(31,41,55,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--ink);
+      font: 500 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .app{
+      display:grid; min-height:100vh;
+      grid-template-rows:64px 1fr; grid-template-columns: 280px 1fr;
+      grid-template-areas:
+        "topbar topbar"
+        "sidebar main";
+    }
+    header{grid-area:topbar; position:sticky; top:0; z-index:10; background:var(--paper); box-shadow:var(--shadow)}
+    .topbar{
+      height:64px; display:flex; align-items:center; gap:16px; padding:0 20px; max-width:1200px; margin:0 auto;
+    }
+    .logo{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .logo-badge{width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); display:grid; place-items:center; color:white; font-weight:900}
+    .search{flex:1; display:flex; align-items:center; background:var(--bg); border:1px solid var(--border); border-radius:999px; padding:8px 14px; gap:10px}
+    .search input{border:none; outline:none; background:transparent; width:100%; font:inherit; color:var(--ink)}
+    .icon{width:18px; height:18px; opacity:.6}
+
+    aside{grid-area:sidebar; padding:20px;}
+    .card{background:var(--paper); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .panel{padding:14px}
+    nav ul{list-style:none; padding:0; margin:8px 0 0 0}
+    nav li{display:flex; align-items:center; gap:10px; padding:10px 12px; margin:6px 0; border-radius:12px; cursor:pointer; color:var(--ink); border:1px solid transparent}
+    nav li.active{background:linear-gradient(0deg, rgba(124,58,237,.08), rgba(124,58,237,.08)); border-color:rgba(124,58,237,.25)}
+    nav li:hover{background:#f8fafc}
+    nav .bullet{width:8px; height:8px; border-radius:50%; background:var(--brand)}
+
+    main{grid-area:main; padding:24px;}
+    .grid{display:grid; gap:18px}
+    .grid-col-2{grid-template-columns: 1.2fr .8fr}
+    .toolbar{display:flex; justify-content:space-between; align-items:center}
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      color:white; border:none; border-radius:999px; padding:10px 16px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)
+    }
+    .btn:active{transform:translateY(1px)}
+    .subtle{color:var(--muted); font-weight:600}
+
+    .list{display:flex; flex-direction:column; gap:10px}
+    .item{padding:12px 14px; border:1px solid var(--border); border-radius:14px; background:var(--paper)}
+    .item small{color:var(--muted)}
+
+    /* Calendar */
+    .calendar{padding:16px}
+    .cal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px}
+    .cal-grid{display:grid; grid-template-columns: repeat(7, 1fr); gap:6px}
+    .cal-cell{aspect-ratio: 1/1; background:var(--bg); border:1px dashed var(--border); display:grid; place-items:center; border-radius:12px; font-size:14px}
+    .cal-cell.today{background:#eef2ff; border-color:#c7d2fe; font-weight:800}
+
+    /* Todo */
+    .todo{padding:16px}
+    .todo form{display:flex; gap:8px; margin-bottom:12px}
+    .input{flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--bg)}
+    .todo-list{display:flex; flex-direction:column; gap:8px; max-height:260px; overflow:auto}
+    .todo-item{display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--paper)}
+    .todo-item.done{opacity:.55; text-decoration:line-through}
+
+    @media (max-width: 1024px){
+      .app{grid-template-columns: 240px 1fr}
+      .grid-col-2{grid-template-columns:1fr}
+    }
+    @media (max-width: 720px){
+      aside{display:none}
+      .app{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="topbar">
+        <div class="logo"><div class="logo-badge">S</div> Serenote</div>
+        <div class="search" role="search">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-4.35-4.35"></path><circle cx="11" cy="11" r="7"></circle></svg>
+          <input aria-label="Search" placeholder="Search entries, tags, moods…" />
+        </div>
+        <a aria-label="Home" title="Home" style="margin-left:8px; opacity:.7" href="#">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M9 22V12h6v10"></path></svg>
+        </a>
+      </div>
+    </header>
+
+    <aside>
+      <div class="card panel" aria-label="Sidebar Navigation">
+        <div style="font-weight:800; opacity:.8; margin-bottom:6px">Quick Links</div>
+        <nav>
+          <ul>
+            <li class="active"><span class="bullet"></span> Dashboard</li>
+            <li><span class="bullet" style="background:#10b981"></span> Entries</li>
+            <li><span class="bullet" style="background:#f59e0b"></span> Time Capsule</li>
+            <li><span class="bullet" style="background:#ef4444"></span> Mood Garden</li>
+            <li><span class="bullet" style="background:#6366f1"></span> Tags</li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <main>
+      <div class="grid grid-col-2">
+        <section class="card panel" aria-labelledby="entriesTitle">
+          <div class="toolbar">
+            <h2 id="entriesTitle" style="margin:6px 0 12px 0">My Entries</h2>
+            <button class="btn" id="newEntryBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg> New Entry</button>
+          </div>
+          <div id="entries" class="list" aria-live="polite">
+            <!-- sample items will be injected -->
+          </div>
+        </section>
+
+        <section class="card calendar" aria-labelledby="calTitle">
+          <div class="cal-head">
+            <h3 id="calTitle" style="margin:0">Calendar</h3>
+            <div id="calMeta" class="subtle"></div>
+          </div>
+          <div class="cal-grid" id="calGrid" aria-label="Monthly calendar"></div>
+        </section>
+
+        <section class="card todo" aria-labelledby="todoTitle">
+          <h3 id="todoTitle" style="margin:0 0 10px 0">To‑Do List</h3>
+          <form id="todoForm">
+            <input class="input" id="todoInput" placeholder="Add a task and press Enter" aria-label="Add task" />
+            <button class="btn" aria-label="Add task"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>Add</button>
+          </form>
+          <div id="todoList" class="todo-list" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // --- Entries ---
+    const entriesEl = document.getElementById('entries');
+    const newEntryBtn = document.getElementById('newEntryBtn');
+    let entryCount = 0;
+
+    const sampleEntries = [
+      {title:'Morning Reflection', time:'Today • 7:45 AM'},
+      {title:'Walked in the park', time:'Yesterday • 6:12 PM'},
+      {title:'Gratitude List', time:'2 days ago • 9:03 PM'}
+    ];
+
+    function renderEntry(item){
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `<div style="font-weight:700">${item.title}</div><small>${item.time}</small>`;
+      entriesEl.prepend(el);
+    }
+
+    sampleEntries.forEach(renderEntry);
+
+    newEntryBtn.addEventListener('click', () => {
+      entryCount++;
+      renderEntry({ title: `Untitled Entry #${entryCount}`, time: new Date().toLocaleString() });
+    });
+
+    // --- Calendar ---
+    const calGrid = document.getElementById('calGrid');
+    const calMeta = document.getElementById('calMeta');
+
+    function buildCalendar(date=new Date()){
+      calGrid.innerHTML = '';
+      const y = date.getFullYear();
+      const m = date.getMonth();
+      const first = new Date(y, m, 1);
+      const startDay = first.getDay(); // 0-6
+      const daysInMonth = new Date(y, m+1, 0).getDate();
+      calMeta.textContent = date.toLocaleString(undefined, { month:'long', year:'numeric' });
+
+      // pad blanks
+      for(let i=0;i<startDay;i++){
+        const pad = document.createElement('div'); pad.className='cal-cell'; calGrid.appendChild(pad);
+      }
+      for(let d=1; d<=daysInMonth; d++){
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell'; cell.textContent = d;
+        const today = new Date();
+        if (d===today.getDate() && m===today.getMonth() && y===today.getFullYear()){
+          cell.classList.add('today');
+        }
+        calGrid.appendChild(cell);
+      }
+    }
+    buildCalendar();
+
+    // --- To‑Do ---
+    const todoForm = document.getElementById('todoForm');
+    const todoInput = document.getElementById('todoInput');
+    const todoList = document.getElementById('todoList');
+
+    function addTodo(text){
+      if(!text.trim()) return;
+      const row = document.createElement('div');
+      row.className = 'todo-item';
+      row.innerHTML = `
+        <input type="checkbox" aria-label="Mark done"/>
+        <span style="flex:1">${text}</span>
+        <button title="Remove" aria-label="Remove" style="border:none;background:transparent;cursor:pointer;opacity:.6">✕</button>
+      `;
+      const checkbox = row.querySelector('input');
+      const removeBtn = row.querySelector('button');
+      checkbox.addEventListener('change',()=>{ row.classList.toggle('done', checkbox.checked); });
+      removeBtn.addEventListener('click',()=>{ row.remove();});
+      todoList.prepend(row);
+    }
+
+    todoForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      addTodo(todoInput.value);
+      todoInput.value='';
+    });
+
+    // starter tasks
+    ['Write a new entry','Tag yesterday\'s mood','Water plants in Mood Garden'].forEach(addTodo);
+  </script>
+</body>
+</html>

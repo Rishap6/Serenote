@@ -42,8 +42,12 @@
         <i class='bx bx-check-shield'></i>
       </div>
       <h2>Registration Complete!</h2>
-      <p>Your account has been created successfully. You can now log in.</p>
-      <a href="login.html" class="btn">Proceed to Login</a>
+      <p>Your account has been created successfully. You will be redirected to the main page shortly.</p>
+      <script>
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 3000);
+      </script>
     </div>
   </div>
 </body>
