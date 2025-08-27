@@ -51,6 +51,7 @@ loginForm.addEventListener("submit", async (e) => {
     const data = await res.json();
     
     if (res.ok) {
+      localStorage.setItem('userId', data.userId);
       showMessage(loginForm, data.message, false);
       setTimeout(() => {
         window.location.href = 'mainpage.html'; 
