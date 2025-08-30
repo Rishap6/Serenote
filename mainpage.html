@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Serenote – Dashboard</title>
   <link rel="stylesheet" href="css/mainpage.css">
+  <link rel="stylesheet" href="css/mood-garden.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -14,7 +15,7 @@
         <div class="logo"><img src="assets/logo.png" alt="Serenote Logo" class="logo-sere" style="height: 40px;"></div>
         <div class="search" role="search">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-4.35-4.35"></path><circle cx="11" cy="11" r="7"></circle></svg>
-          <input aria-label="Search" placeholder="Search entries, tags, moods…" />
+          <input aria-label="Search" placeholder="Search entries, moods…" />
         </div>
         <a aria-label="Home" title="Home" style="margin-left:8px; opacity:.7" href="#">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M9 22V12h6v10"></path></svg>
@@ -34,7 +35,6 @@
             <li data-section="entries"><span class="bullet" style="background:#10b981"></span> Entries</li>
             <li data-section="voice-notes-capsules"><span class="bullet" style="background:#f59e0b"></span> Voice Notes & Capsules</li>
             <li data-section="mood-garden-standalone"><span class="bullet" style="background:#ef4444"></span> Mood Garden</li>
-            <li data-section="tags"><span class="bullet" style="background:#6366f1"></span> Tags</li>
           </ul>
         </nav>
       </div>
@@ -167,11 +167,19 @@
     const moodChartCanvas = document.getElementById('moodChart').getContext('2d');
     const timeCapsulesList = document.getElementById('timeCapsulesList');
     const logoutButton = document.getElementById('logout-button');
+    const searchInput = document.querySelector('.search input');
+
+    let allEntries = [];
 
     logoutButton.addEventListener('click', (e) => {
       e.preventDefault();
       localStorage.removeItem('userId');
       window.location.href = 'login.html';
+    });
+
+    searchInput.addEventListener('keyup', () => {
+      renderEntries(allEntries);
+      renderTimeCapsules(allEntries);
     });
 
     const sidebarLinks = document.querySelectorAll('aside nav ul li');
@@ -299,9 +307,9 @@
     async function fetchEntries() {
       try {
         const res = await fetch(`http://localhost:8080/entries?userId=${userId}`);
-        const entries = await res.json();
-        renderEntries(entries);
-        renderTimeCapsules(entries);
+        allEntries = await res.json();
+        renderEntries(allEntries);
+        renderTimeCapsules(allEntries);
       } catch (err) {
         console.error('Error fetching entries:', err);
       }
@@ -310,37 +318,95 @@
     function renderEntries(entries) {
       entriesEl.innerHTML = '';
       const now = new Date();
-      entries.filter(entry => !entry.is_capsule || (entry.is_capsule && new Date(entry.capsule_open_date) <= now)).forEach(entry => {
-        const el = document.createElement('div');
-        el.className = 'item';
-        if (entry.type === 'text') {
-          el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>${new Date(entry.created_at).toLocaleString()}</small><p>${entry.content}</p><p>Mood: ${entry.mood}</p>`;
-        } else if (entry.type === 'voice') {
-          el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>${new Date(entry.created_at).toLocaleString()}</small><audio controls src="${entry.content}"></audio><p>Mood: ${entry.mood}</p>`;
-        }
-        entriesEl.appendChild(el);
-      });
+      const searchTerm = searchInput.value.toLowerCase();
+
+      entries
+        .filter(entry => !entry.is_capsule || (entry.is_capsule && new Date(entry.capsule_open_date) <= now))
+        .filter(entry => {
+          const title = entry.title.toLowerCase();
+          const content = entry.content.toLowerCase();
+          const mood = entry.mood.toLowerCase();
+          return title.includes(searchTerm) || content.includes(searchTerm) || mood.includes(searchTerm);
+        })
+        .forEach(entry => {
+          const el = document.createElement('div');
+          el.className = 'item';
+          if (entry.type === 'text') {
+            el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>${new Date(entry.created_at).toLocaleString()}</small><p>${entry.content}</p><p>Mood: ${entry.mood}</p><button class="delete-button" data-id="${entry.id}">Delete</button>`;
+          } else if (entry.type === 'voice') {
+            el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>${new Date(entry.created_at).toLocaleString()}</small><audio controls src="${entry.content}"></audio><p>Mood: ${entry.mood}</p><button class="delete-button" data-id="${entry.id}">Delete</button>`;
+          }
+          entriesEl.appendChild(el);
+        });
     }
 
     function renderTimeCapsules(entries) {
       timeCapsulesList.innerHTML = '';
       const now = new Date();
-      entries.filter(entry => entry.is_capsule).forEach(entry => {
-        const el = document.createElement('div');
-        el.className = 'item';
-        const openDate = new Date(entry.capsule_open_date);
-        if (now < openDate) {
-          el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>Time Capsule | Opens on ${openDate.toLocaleDateString()}</small><p>This is a time capsule. The content is locked until the open date.</p>`;
-        } else {
-          if (entry.type === 'text') {
-            el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>Time Capsule (Opened) | ${new Date(entry.created_at).toLocaleString()}</small><p>${entry.content}</p><p>Mood: ${entry.mood}</p>`;
-          } else if (entry.type === 'voice') {
-            el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>Time Capsule (Opened) | ${new Date(entry.created_at).toLocaleString()}</small><audio controls src="${entry.content}"></audio><p>Mood: ${entry.mood}</p>`;
+      const searchTerm = searchInput.value.toLowerCase();
+
+      entries
+        .filter(entry => entry.is_capsule)
+        .filter(entry => {
+          const title = entry.title.toLowerCase();
+          if (new Date(entry.capsule_open_date) > now) {
+            return title.includes(searchTerm);
           }
-        }
-        timeCapsulesList.appendChild(el);
-      });
+          const content = entry.content.toLowerCase();
+          const mood = entry.mood.toLowerCase();
+          return title.includes(searchTerm) || content.includes(searchTerm) || mood.includes(searchTerm);
+        })
+        .forEach(entry => {
+          const el = document.createElement('div');
+          el.className = 'item';
+          const openDate = new Date(entry.capsule_open_date);
+          if (now < openDate) {
+            el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>Time Capsule | Opens on ${openDate.toLocaleDateString()}</small><p>This is a time capsule. The content is locked until the open date.</p><button class="delete-button" data-id="${entry.id}">Delete</button>`;
+          } else {
+            if (entry.type === 'text') {
+              el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>Time Capsule (Opened) | ${new Date(entry.created_at).toLocaleString()}</small><p>${entry.content}</p><p>Mood: ${entry.mood}</p><button class="delete-button" data-id="${entry.id}">Delete</button>`;
+            } else if (entry.type === 'voice') {
+              el.innerHTML = `<div style="font-weight:700">${entry.title}</div><small>Time Capsule (Opened) | ${new Date(entry.created_at).toLocaleString()}</small><audio controls src="${entry.content}"></audio><p>Mood: ${entry.mood}</p><button class="delete-button" data-id="${entry.id}">Delete</button>`;
+            }
+          }
+          timeCapsulesList.appendChild(el);
+        });
     }
+
+    async function deleteEntry(id) {
+      const confirmation = confirm('Are you sure you want to delete this entry?');
+      if (confirmation) {
+        try {
+          const res = await fetch(`http://localhost:8080/entries/${id}`, {
+            method: 'DELETE'
+          });
+
+          if (res.ok) {
+            fetchEntries();
+          } else {
+            const data = await res.json();
+            alert(data.message);
+          }
+        } catch (err) {
+          console.error('Error deleting entry:', err);
+          alert('An error occurred while deleting the entry.');
+        }
+      }
+    }
+
+    entriesEl.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete-button')) {
+        const entryId = e.target.dataset.id;
+        deleteEntry(entryId);
+      }
+    });
+
+    timeCapsulesList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete-button')) {
+        const entryId = e.target.dataset.id;
+        deleteEntry(entryId);
+      }
+    });
 
     async function fetchInsights() {
       try {
